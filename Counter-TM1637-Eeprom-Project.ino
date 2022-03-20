@@ -5,21 +5,33 @@
 #define bt_reset A2
 #define led_input A3
 
-#define buzzer 4 
+#define buzzer 4
 
 #define data_pin 2
 #define clock_pin 3
-                      /*0*/ /*1*/ /*2*/ /*3*/ /*4*/ /*5*/ /*6*/ /*7*/ /*8*/ /*9*/
+/*0*/ /*1*/ /*2*/ /*3*/ /*4*/ /*5*/ /*6*/ /*7*/ /*8*/ /*9*/
 const int digits[] = {0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f};
 
-                        // 12%,  25%,  38%,  50%,  63%,  75%,  88%, 100%
+// 12%,  25%,  38%,  50%,  63%,  75%,  88%, 100%
 const int Brightness[] = {0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f};
 
 long Counter = 0;
 int flag1 = 0, flag2 = 0, timer = 0;
 
+// Variable para detectar flancos del led
+bool datoAnterior = HIGH;
+bool dato = HIGH;
+
+// Variable para controlar la velocidad de respuesta del boton reset
+int delayResponseReset = 20;
+
+// Variable para controlar la velocidad de respuesta del boton led
+int delayResponseLed = 80;
+
 void setup()
-{ // put your setup code here, to run once
+{
+  // Para probar
+  Serial.begin(9600);
 
   pinMode(bt_up, INPUT_PULLUP);
   pinMode(bt_down, INPUT_PULLUP);
@@ -36,7 +48,7 @@ void setup()
   stop();
 
   // limpia display
-  write_data(0x00, 0x00, 0x00, 0x00);
+  // write_data(0x00, 0x00, 0x00, 0x00);
 
   // Indica que el sistema esta listo
   // for (int i = 9; i >= 0; i--)
@@ -50,15 +62,33 @@ void setup()
     eeprom_write();
     EEPROM.write(0, 0);
   }
-  // else
-  // {
-  // }
 
   eeprom_read();
 }
 
 void loop()
 {
+  // if (dato != datoAnterior)
+  // {
+  //   if (dato == LOW)
+  //   {
+  //     if (flag1 == 0)
+  //     {
+  //       flag1 = 1;
+  //       digitalWrite(buzzer, HIGH);
+  //       Counter = Counter + 1;
+  //       if (Counter > 9999)
+  //       {
+  //         Counter = 9999;
+  //       }
+  //       eeprom_write();
+  //       delay(delayResponseLed);
+  //     }
+  //   }
+  //     delay(50);
+  // }
+  // datoAnterior = dato;
+
   if (digitalRead(led_input) == 0)
   {
     if (flag1 == 0)
@@ -71,8 +101,12 @@ void loop()
         Counter = 9999;
       }
       eeprom_write();
-      // delay(100);
+      delay(80);
     }
+  }
+  else
+  {
+    flag1 = 0;
   }
 
   if (digitalRead(bt_up) == 0)
@@ -90,10 +124,10 @@ void loop()
       delay(100);
     }
   }
-  else
-  {
-    flag1 = 0;
-  }
+  // else
+  // {
+  //   flag1 = 0;
+  // }
 
   if (digitalRead(bt_down) == 0)
   {
@@ -110,19 +144,19 @@ void loop()
       delay(100);
     }
   }
-  else
-  {
-    flag2 = 0;
-  }
+  // else
+  // {
+  //   flag2 = 0;
+  // }
 
   if (digitalRead(bt_reset) == 0)
   {
     digitalWrite(buzzer, HIGH);
-    if (timer < 100)
+    if (timer < delayResponseReset)
     {
       timer = timer + 1;
     }
-    if (timer == 100)
+    if (timer == delayResponseReset)
     {
       Counter = 0;
       eeprom_write();
@@ -210,4 +244,29 @@ bool writeValue(uint8_t value)
   bool ack = digitalRead(data_pin) == 0;
   pinMode(data_pin, OUTPUT);
   return ack;
+}
+
+int detectaFlanco(int pin)
+{
+  // Devuelve 1 flanco ascendente, -1 flanco descendente y 0 si no hay nada
+  static bool anterior_estado = digitalRead(pin);
+  bool estado = digitalRead(pin);
+
+  if (anterior_estado != estado)
+  {
+    if (estado == HIGH)
+    {
+      anterior_estado = estado;
+      return 1;
+    }
+    else
+    {
+      anterior_estado = estado;
+      return -1;
+    }
+  }
+  else
+  {
+    return 0;
+  }
 }
