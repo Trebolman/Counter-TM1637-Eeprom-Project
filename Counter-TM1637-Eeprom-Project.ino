@@ -59,8 +59,7 @@ void setup()
 
 void loop()
 {
-
-  if (digitalRead(bt_up) == 0 || digitalRead(led_input) == 0)
+  if (digitalRead(led_input) == 0)
   {
     if (flag1 == 0)
     {
@@ -69,7 +68,23 @@ void loop()
       Counter = Counter + 1;
       if (Counter > 9999)
       {
-        Counter = 0;
+        Counter = 9999;
+      }
+      eeprom_write();
+      // delay(100);
+    }
+  }
+
+  if (digitalRead(bt_up) == 0)
+  {
+    if (flag1 == 0)
+    {
+      flag1 = 1;
+      digitalWrite(buzzer, HIGH);
+      Counter = Counter + 1;
+      if (Counter > 9999)
+      {
+        Counter = 9999;
       }
       eeprom_write();
       delay(100);
@@ -89,7 +104,7 @@ void loop()
       Counter = Counter - 1;
       if (Counter < 0)
       {
-        Counter = 9999;
+        Counter = 0;
       }
       eeprom_write();
       delay(100);
@@ -128,8 +143,7 @@ void eeprom_write()
   EEPROM.write(1, Counter % 10);
   EEPROM.write(2, (Counter / 10) % 10);
   EEPROM.write(3, (Counter / 100) % 10);
-  // EEPROM.write(4, (Counter / 1000) % 10);
-  EEPROM.write(4, 7);
+  EEPROM.write(4, (Counter / 1000) % 10);
 }
 
 void eeprom_read()

@@ -12,3 +12,7 @@ bin/CounterRonaldProject_vNano.ino.with_bootloader.hex
 bin/includes.cache
 CounterSimulacion_vNano.pdsprj.DANIELE-PC.icaba.workspace
 CounterSimulacion.pdsprj.DANIELE-PC.icaba.workspace
+bin/Counter-TM1637-Eeprom-Project.ino.with_bootloader.bin
+bin/Counter-TM1637-Eeprom-Project.ino.with_bootloader.hex
+bin/Counter-TM1637-Eeprom-Project.ino.elf
+bin/Counter-TM1637-Eeprom-Project.ino.eep
