@@ -16,7 +16,7 @@ const int digits[] = {0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f
 const int Brightness[] = {0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f};
 
 long Counter = 0;
-int flag1 = 0, flag2 = 0, timer = 0;
+int flag1 = 0, flag2 = 0, flag3 = 0, timer = 0;
 
 // Variable para detectar flancos del led
 bool datoAnterior = HIGH;
@@ -25,8 +25,11 @@ bool dato = HIGH;
 // Variable para controlar la velocidad de respuesta del boton reset
 int delayResponseReset = 20;
 
-// Variable para controlar la velocidad de respuesta del boton led
+// Variable para controlar la velocidad de respuesta del sensor led
 int delayResponseLed = 80;
+
+// Variable para controlar la velocidad de respuesta de los botones +1 y -1
+int delayResponseButtons = 100;
 
 void setup()
 {
@@ -91,9 +94,9 @@ void loop()
 
   if (digitalRead(led_input) == 0)
   {
-    if (flag1 == 0)
+    if (flag3 == 0)
     {
-      flag1 = 1;
+      flag3 = 1;
       digitalWrite(buzzer, HIGH);
       Counter = Counter + 1;
       if (Counter > 9999)
@@ -101,12 +104,12 @@ void loop()
         Counter = 9999;
       }
       eeprom_write();
-      delay(80);
+      delay(delayResponseLed);
     }
   }
   else
   {
-    flag1 = 0;
+    flag3 = 0;
   }
 
   if (digitalRead(bt_up) == 0)
@@ -121,13 +124,13 @@ void loop()
         Counter = 9999;
       }
       eeprom_write();
-      delay(100);
+      delay(delayResponseButtons);
     }
   }
-  // else
-  // {
-  //   flag1 = 0;
-  // }
+  else
+  {
+    flag1 = 0;
+  }
 
   if (digitalRead(bt_down) == 0)
   {
@@ -141,13 +144,13 @@ void loop()
         Counter = 0;
       }
       eeprom_write();
-      delay(100);
+      delay(delayResponseButtons);
     }
   }
-  // else
-  // {
-  //   flag2 = 0;
-  // }
+  else
+  {
+    flag2 = 0;
+  }
 
   if (digitalRead(bt_reset) == 0)
   {
